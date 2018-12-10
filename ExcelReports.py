@@ -1,6 +1,9 @@
 import tkinter as tk
 import openpyxl
 from openpyxl import Workbook
+from openpyxl.styles import Fill, Font, NamedStyle
+from copy import copy, deepcopy
+
 
 """
 Create form in Tkinter: 
@@ -11,23 +14,58 @@ Create form in Tkinter:
 
 """
 
-
 # Open the original workbook and sheet to get data from
+# Create a function to iterate over all excel files in a directory
 wb = openpyxl.load_workbook(
         r'\\dsfiles01\Managed Services\GEMS Reporting\2018\rawFiles\SGS UCDay2_MSOpenandCompletedTickets.xlsx'
     )
-sheetnames = wb.get_sheet_names()
-ws = wb.get_sheet_by_name(sheetnames[0])
+sheetNames = wb.get_sheet_names()
+ws = wb.get_sheet_by_name(sheetNames[0])
 
-wsrows = ws.max_row
-wscols = ws.max_column
+wsRows = ws.max_row
+wsCols = ws.max_column
 
 # Create a new sheet to paste data
-testfilename = r'\\dsfiles01\Managed Services\GEMS Reporting\2018\rawFiles\EXCELTEST.xlsx'
+testFileName = r'\\dsfiles01\Managed Services\GEMS Reporting\2018\rawFiles\EXCELTEST.xlsx'
 twb = Workbook()
 newsheetnames = twb.get_sheet_names()
 tws = twb.get_sheet_by_name(newsheetnames[0])
 tws.title = "Ticket info"
+
+
+# FORMATTING
+bold_font = Font(bold=True)
+
+def formatHeading(r, c):
+    twsCell = tws.cell(r, c)
+    twsCell.font = bold_font  # (font=twsCell.style.font(bold=True))
+
+def formatTitle(r, c):
+    pass
+
+def formatSub():
+    pass
+
+
+def formatSubBold():
+    pass
+
+
+# dictionary of function options for ticket headings
+ticketHeadings = {
+    "Closed": formatHeading(1, 1)
+}
+
+
+ticketColList = []
+typeColList = []
+priorityColList = []
+contactColList = []
+
+ticketColSet = {}
+typeColSet = {}
+priorityColSet = {}
+contactColSet = {}
 
 
 def copycells(startrow, endrow, startcol, endcol, sheet):
@@ -36,7 +74,9 @@ def copycells(startrow, endrow, startcol, endcol, sheet):
         rowsel = []
         for j in range(startcol, endcol + 1, 1):
             rowsel.append(ws.cell(row=i, column=j).value)
+
         rangesel.append(rowsel)
+        # print(rowsel[0])  # some end rows have 'none' in the field
 
     return rangesel
 
@@ -63,22 +103,67 @@ def findtext(s_row, e_row, s_col, e_col, searchsheet, searchtext):
 
 def ticketdata():
     print("Processing....")
-    tixlist = copycells(newstart, wsrows, 1, wscols, ws)
+    tixlist = copycells(newstart, wsRows, 1, wsCols, ws)
+    for t in tixlist:
+
+        ticketColList.append(t[0])
+        typeColList.append(t[2])
+        priorityColList.append(t[3])
+        contactColList.append(t[4])
+
+        ticketColSet[t[0]] = tixlist.index(t)
+        typeColSet[t[2]] = tixlist.index(t)
+
+        if t[3] is not None:
+            priorityColSet[t[3]] = tixlist.index(t)
+        final_priority_set = sorted(priorityColSet)
+
+        # finalPrioritySet(sorted(priorityColSet.items(), key=lambda t:[0]))
+        contactColSet[t[4]] = tixlist.index(t)
+    uniqueTicketSet = set(ticketColSet)
+    uniqueTypeSet = set(typeColSet)
+    uniquePrioritySet = set(priorityColSet)
+    uniqueContactSet = set(contactColSet)
+    # for u in uniqueContactSet:
+        # print("Unique: " + str(u))
+    for p in final_priority_set:
+        if str(p).find('1') != -1:
+            print("There are " + str(priorityColList.count(p)) + " instances of ")
+            print("Unique: " + str(p))
+        elif str(p).find('2') != -1:
+            print("There are " + str(priorityColList.count(p)) + " instances of ")
+            print("Unique: " + str(p))
+        elif str(p).find('3') != -1:
+            print("There are " + str(priorityColList.count(p)) + " instances of ")
+            print("Unique: " + str(p))
+        elif str(p).find('4') != -1:
+            print("There are " + str(priorityColList.count(p)) + " instances of ")
+            print("Unique: " + str(p))
+
     print("tixlist.__len__ = " + str(tixlist.__len__()))
     print("tixlist[0].__len__ = " + str(tixlist[0].__len__()))
-    #tws.max_row = tixlist.__len__()
-    #tws.max_column = tixlist[0].__len__()
-    pastecells(1, tixlist.__len__(), 1, (tixlist[0].__len__()+1), tws, tixlist)
+
+    # tws.max_row = tixlist.__len__()
+    # tws.max_column = tixlist[0].__len__()
+    rowNumber = 1
+    columnNumber = 1
+    tws.cell(row=rowNumber, column=columnNumber).value = "Company"
+    rowNumber += 1
 
 
-    twb.save(testfilename)
+    pastecells(rowNumber, tixlist.__len__(), 1, (tixlist[0].__len__()+1), tws, tixlist)
+
+    twb.save(testFileName)
     print("the file should be saved with data")
 
 
-newstart = findtext(1, wsrows, 1, wscols, ws, "Ticket Number")
+newstart = findtext(1, wsRows, 1, wsCols, ws, "Closed")
 ticketdata()
+
+"""
 mainWindow = tk.Tk()
 
 mainWindow.title("Did it work")
 mainWindow.geometry("640x480")
 mainWindow.mainloop()
+"""
