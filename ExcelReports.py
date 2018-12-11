@@ -118,27 +118,7 @@ def ticketdata():
             priorityColSet[t[3]] = tixlist.index(t)
         final_priority_set = sorted(priorityColSet)
 
-        # finalPrioritySet(sorted(priorityColSet.items(), key=lambda t:[0]))
         contactColSet[t[4]] = tixlist.index(t)
-    uniqueTicketSet = set(ticketColSet)
-    uniqueTypeSet = set(typeColSet)
-    uniquePrioritySet = set(priorityColSet)
-    uniqueContactSet = set(contactColSet)
-    # for u in uniqueContactSet:
-        # print("Unique: " + str(u))
-    for p in final_priority_set:
-        if str(p).find('1') != -1:
-            print("There are " + str(priorityColList.count(p)) + " instances of ")
-            print("Unique: " + str(p))
-        elif str(p).find('2') != -1:
-            print("There are " + str(priorityColList.count(p)) + " instances of ")
-            print("Unique: " + str(p))
-        elif str(p).find('3') != -1:
-            print("There are " + str(priorityColList.count(p)) + " instances of ")
-            print("Unique: " + str(p))
-        elif str(p).find('4') != -1:
-            print("There are " + str(priorityColList.count(p)) + " instances of ")
-            print("Unique: " + str(p))
 
     print("tixlist.__len__ = " + str(tixlist.__len__()))
     print("tixlist[0].__len__ = " + str(tixlist[0].__len__()))
@@ -147,8 +127,91 @@ def ticketdata():
     # tws.max_column = tixlist[0].__len__()
     rowNumber = 1
     columnNumber = 1
+
+    # Company Name
     tws.cell(row=rowNumber, column=columnNumber).value = "Company"
     rowNumber += 1
+    print("ws.cell(2, 1)" + str(ws.cell(2, 1).value))
+    tws.cell(row=rowNumber, column=columnNumber).value = ws.cell(4, 1).value
+    rowNumber +=2
+
+    # Priority Ticket Breakdown
+    tws.cell(row=rowNumber, column=columnNumber).value = "Total Tickets By Priority"
+    rowNumber += 1
+    tws.cell(row=rowNumber, column=columnNumber).value = "Priority"
+    columnNumber += 1
+    tws.cell(row=rowNumber, column=columnNumber).value = "Number of Tickets"
+    rowNumber += 1
+    columnNumber = 1
+    uniqueTicketSet = set(ticketColSet)
+    uniqueTypeSet = set(typeColSet)
+    uniquePrioritySet = set(priorityColSet)
+    uniqueContactSet = set(contactColSet)
+    # for u in uniqueContactSet:
+        # print("Unique: " + str(u))
+    for p in final_priority_set:
+        print(tws.cell(row=rowNumber, column=columnNumber).value)
+        if tws.cell(row=rowNumber, column=columnNumber).value is not None:
+            rowNumber += 1
+            if str(p).find('1') != -1:
+                print("There are " + str(priorityColList.count(p)) + " instances of ")
+                print("Unique: " + str(p))
+                tws.cell(row=rowNumber, column=columnNumber).value = str(p)
+                columnNumber += 1
+                tws.cell(row=rowNumber, column=columnNumber).value = str(priorityColList.count(p))
+                columnNumber = 1
+            elif str(p).find('2') != -1:
+                print("There are " + str(priorityColList.count(p)) + " instances of ")
+                print("Unique: " + str(p))
+                tws.cell(row=rowNumber, column=columnNumber).value = str(p)
+                columnNumber += 1
+                tws.cell(row=rowNumber, column=columnNumber).value = str(priorityColList.count(p))
+                columnNumber = 1
+            elif str(p).find('3') != -1:
+                print("There are " + str(priorityColList.count(p)) + " instances of ")
+                print("Unique: " + str(p))
+                tws.cell(row=rowNumber, column=columnNumber).value = str(p)
+                columnNumber += 1
+                tws.cell(row=rowNumber, column=columnNumber).value = str(priorityColList.count(p))
+                columnNumber = 1
+            elif str(p).find('4') != -1:
+                print("There are " + str(priorityColList.count(p)) + " instances of ")
+                print("Unique: " + str(p))
+                tws.cell(row=rowNumber, column=columnNumber).value = str(p)
+                columnNumber += 1
+                tws.cell(row=rowNumber, column=columnNumber).value = str(priorityColList.count(p))
+                columnNumber = 1
+        else:
+            if str(p).find('1') != -1:
+                print("There are " + str(priorityColList.count(p)) + " instances of ")
+                print("Unique: " + str(p))
+                tws.cell(row=rowNumber, column=columnNumber).value = str(p)
+                columnNumber += 1
+                tws.cell(row=rowNumber, column=columnNumber).value = str(priorityColList.count(p))
+                columnNumber = 1
+            elif str(p).find('2') != -1:
+                print("There are " + str(priorityColList.count(p)) + " instances of ")
+                print("Unique: " + str(p))
+                tws.cell(row=rowNumber, column=columnNumber).value = str(p)
+                columnNumber += 1
+                tws.cell(row=rowNumber, column=columnNumber).value = str(priorityColList.count(p))
+                columnNumber = 1
+            elif str(p).find('3') != -1:
+                print("There are " + str(priorityColList.count(p)) + " instances of ")
+                print("Unique: " + str(p))
+                tws.cell(row=rowNumber, column=columnNumber).value = str(p)
+                columnNumber += 1
+                tws.cell(row=rowNumber, column=columnNumber).value = str(priorityColList.count(p))
+                columnNumber = 1
+            elif str(p).find('4') != -1:
+                print("There are " + str(priorityColList.count(p)) + " instances of ")
+                print("Unique: " + str(p))
+                tws.cell(row=rowNumber, column=columnNumber).value = str(p)
+                columnNumber += 1
+                tws.cell(row=rowNumber, column=columnNumber).value = str(priorityColList.count(p))
+                columnNumber = 1
+
+    rowNumber += 2
 
 
     pastecells(rowNumber, tixlist.__len__(), 1, (tixlist[0].__len__()+1), tws, tixlist)
