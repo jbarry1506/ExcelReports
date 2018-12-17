@@ -1,4 +1,3 @@
-import datetime
 from os import listdir
 from os.path import (
     isfile,
@@ -13,8 +12,12 @@ from openpyxl.styles import (
     Side,
     # NamedStyle,
     Alignment,
-    numbers
 )
+import win32com.client as win32
+import psutil
+import os
+import subprocess
+
 """
 Create form in Tkinter: 
     open an excel file.
@@ -115,6 +118,16 @@ def format_title(r, c):
     tws_cell.alignment = alignment_center
 
 
+# Open Outlook.exe. Path may vary according to system config
+# Please check the path to .exe file and update below
+def open_outlook():
+    try:
+        subprocess.call([r'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Outlook.exe'])
+        os.system(r'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Outlook.exe');
+    except:
+        print("Outlook didn't open successfully")
+
+
 # Open the original workbook and sheet to get data from
 def open_worksheet(file):
     wb = openpyxl.load_workbook(file)
@@ -150,8 +163,9 @@ def paste_cells(startrow, endrow, startcol, endcol, newsheet, data):
             # print(newsheet.cell(i, j).value)
 
             if j == 6:
-                print("jdata" + str(data[rowcount][colcount]))
-                print("Value: " + str(newsheet.cell(row=i, column=j).value))
+                pass
+                # print("jdata" + str(data[rowcount][colcount]))
+                # print("Value: " + str(newsheet.cell(row=i, column=j).value))
 
             if str(newsheet.cell(row=i, column=j).value) in heading_tuple:
                 format_heading(i, j)
@@ -173,6 +187,18 @@ def save_sheet(workbook, file, company):
     print("save_filename " + save_filename)
 
     workbook.save(save_filename)
+
+
+def send_notification(file):
+    outlook = win32.Dispatch('Outlook.Application')
+    # outlook.visible = 1
+    mail = outlook.CreateItem(0)
+    mail.To = 'jbarry1506@gmail.com; ' \
+              'ashley.sanders@data-strategy.com; '
+    mail.Subject = 'Sent through Python'
+    mail.body = 'This email alert is auto generated. Please do not respond.'
+    mail.Attachments.Add(file)
+    mail.send
 
 
 def ticket_data(tixlist):
@@ -418,6 +444,21 @@ for cn in company_names:
             print("the file should be saved with data")
 
 
+# Checking if outlook is already opened. If not, open Outlook.exe and send email
+for item in psutil.pids():
+    p = psutil.Process(item)
+    if p.name() == "OUTLOOK.EXE":
+        flag = 1
+        break
+    else:
+        flag = 0
+codemonkey = r'C:\Users\jbarry\Desktop\codemonkeysaveworld-no2-cover.png'
+if (flag == 1):
+
+    send_notification(codemonkey)
+else:
+    open_outlook()
+    send_notification(codemonkey)
 """
 mainWindow = tk.Tk()
 
