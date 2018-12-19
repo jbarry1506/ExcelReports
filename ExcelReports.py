@@ -10,22 +10,13 @@ from openpyxl.styles import (
     Font,
     Border,
     Side,
-    # NamedStyle,
     Alignment,
 )
 import win32com.client as win32
 import psutil
 import os
 import subprocess
-
-"""
-Create form in Tkinter: 
-    open an excel file.
-    Search for a user-defined word or phrase to use as a starting point
-    copy all rows to the end of the document
-    paste in new document
-
-"""
+import company_dictionary
 
 
 def copy_cells(startrow, endrow, startcol, endcol, sheet):
@@ -41,9 +32,7 @@ def copy_cells(startrow, endrow, startcol, endcol, sheet):
 def create_worksheet(workbook):
     new_sheet_names = workbook.get_sheet_names()
     nws = workbook.get_sheet_by_name(new_sheet_names[0])
-
     nws.title = "Ticket info"
-
     return nws
 
 
@@ -64,7 +53,6 @@ def get_company_names(file):
 
 
 def find_text(s_row, e_row, s_col, e_col, searchsheet, searchtext):
-
     cell_info = copy_cells(s_row, e_row, s_col, e_col, searchsheet)
     row = 0
     for c in cell_info:
@@ -122,8 +110,8 @@ def format_title(r, c):
 # Please check the path to .exe file and update below
 def open_outlook():
     try:
-        subprocess.call([r'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Outlook.exe'])
-        os.system(r'C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Outlook.exe');
+        subprocess.call([r'  <  YOUR PATH  >  '])
+        os.system(r'  <  YOUR PATH  >  ')
     except:
         print("Outlook didn't open successfully")
 
@@ -162,11 +150,6 @@ def paste_cells(startrow, endrow, startcol, endcol, newsheet, data):
             newsheet.cell(row=i, column=j).value = data[rowcount][colcount]
             # print(newsheet.cell(i, j).value)
 
-            if j == 6:
-                pass
-                # print("jdata" + str(data[rowcount][colcount]))
-                # print("Value: " + str(newsheet.cell(row=i, column=j).value))
-
             if str(newsheet.cell(row=i, column=j).value) in heading_tuple:
                 format_heading(i, j)
             else:
@@ -189,16 +172,42 @@ def save_sheet(workbook, file, company):
     workbook.save(save_filename)
 
 
-def send_notification(file):
+def send_notification(file, company):
+    # TODO - Write message body function
+    def _message_body(cmpny):
+        return {
+
+        }
+
+    def _cc_email(cmpny):
+        return company_dictionary.email_lists.get(cmpny).get("CC")
+
+    def _select_email(cmpny):
+        return company_dictionary.email_lists.get(cmpny).get("To")
+
+    # TODO Write subject string function
+    def _subject_string(cmpny):
+        return {
+
+        }
+
+    cc_list = [
+        # < THIS IS A LIST OF ADDITIONAL EMAILS TO INCLUDE FOR REPORT DISTRIBUTION >
+    ]
+
+    email_list = str(_select_email(company))
+    cc_return = str(_cc_email(company) + cc_list)
+    # cc_list = cc_list + cc_return
     outlook = win32.Dispatch('Outlook.Application')
     # outlook.visible = 1
     mail = outlook.CreateItem(0)
-    mail.To = 'jbarry1506@gmail.com; ' \
-              'ashley.sanders@data-strategy.com; '
+    mail.To = email_list
+    mail.CC = cc_return
     mail.Subject = 'Sent through Python'
     mail.body = 'This email alert is auto generated. Please do not respond.'
     mail.Attachments.Add(file)
-    mail.send
+    print(mail.To, mail.CC)
+    # mail.send
 
 
 def ticket_data(tixlist):
@@ -252,72 +261,72 @@ def ticket_data(tixlist):
     column_number = 1
 
     rows_added = 0
-    for p in final_priority_set:
+    for fp in final_priority_set:
         # print(tws.cell(row=row_number, column=column_number).value)
         if tws.cell(row=row_number, column=column_number).value is not None:
             row_number += 1
-            if str(p).find('1') != -1:
-                tws.cell(row=row_number, column=column_number).value = p
+            if str(fp).find('1') != -1:
+                tws.cell(row=row_number, column=column_number).value = fp
                 format_sub(row_number, column_number)
                 column_number += 1
-                tws.cell(row=row_number, column=column_number).value = priorityColList.count(p)
+                tws.cell(row=row_number, column=column_number).value = priorityColList.count(fp)
                 format_sub(row_number, column_number)
                 column_number = 1
                 rows_added += 1
-            elif str(p).find('2') != -1:
-                tws.cell(row=row_number, column=column_number).value = str(p)
+            elif str(fp).find('2') != -1:
+                tws.cell(row=row_number, column=column_number).value = str(fp)
                 format_sub(row_number, column_number)
                 column_number += 1
-                tws.cell(row=row_number, column=column_number).value = priorityColList.count(p)
+                tws.cell(row=row_number, column=column_number).value = priorityColList.count(fp)
                 format_sub(row_number, column_number)
                 column_number = 1
                 rows_added += 1
-            elif str(p).find('3') != -1:
-                tws.cell(row=row_number, column=column_number).value = str(p)
+            elif str(fp).find('3') != -1:
+                tws.cell(row=row_number, column=column_number).value = str(fp)
                 format_sub(row_number, column_number)
                 column_number += 1
-                tws.cell(row=row_number, column=column_number).value = priorityColList.count(p)
+                tws.cell(row=row_number, column=column_number).value = priorityColList.count(fp)
                 format_sub(row_number, column_number)
                 column_number = 1
                 rows_added += 1
-            elif str(p).find('4') != -1:
-                tws.cell(row=row_number, column=column_number).value = str(p)
+            elif str(fp).find('4') != -1:
+                tws.cell(row=row_number, column=column_number).value = str(fp)
                 format_sub(row_number, column_number)
                 column_number += 1
-                tws.cell(row=row_number, column=column_number).value = priorityColList.count(p)
+                tws.cell(row=row_number, column=column_number).value = priorityColList.count(fp)
                 format_sub(row_number, column_number)
                 column_number = 1
                 rows_added += 1
         else:
-            if str(p).find('1') != -1:
-                tws.cell(row=row_number, column=column_number).value = str(p)
+            if str(fp).find('1') != -1:
+                tws.cell(row=row_number, column=column_number).value = str(fp)
                 format_sub(row_number, column_number)
                 column_number += 1
-                tws.cell(row=row_number, column=column_number).value = priorityColList.count(p)
+                tws.cell(row=row_number, column=column_number).value = priorityColList.count(fp)
                 format_sub(row_number, column_number)
                 column_number = 1
                 rows_added += 1
-            elif str(p).find('2') != -1:
-                tws.cell(row=row_number, column=column_number).value = str(p)
+            elif str(fp).find('2') != -1:
+                tws.cell(row=row_number, column=column_number).value = str(fp)
                 format_sub(row_number, column_number)
                 column_number += 1
-                tws.cell(row=row_number, column=column_number).value = priorityColList.count(p)
+                tws.cell(row=row_number, column=column_number).value = priorityColList.count(fp)
                 format_sub(row_number, column_number)
                 column_number = 1
                 rows_added += 1
-            elif str(p).find('3') != -1:
-                tws.cell(row=row_number, column=column_number).value = str(p)
+            elif str(fp).find('3') != -1:
+                tws.cell(row=row_number, column=column_number).value = str(fp)
                 format_sub(row_number, column_number)
                 column_number += 1
-                tws.cell(row=row_number, column=column_number).value = priorityColList.count(p)
+                tws.cell(row=row_number, column=column_number).value = priorityColList.count(fp)
                 format_sub(row_number, column_number)
                 column_number = 1
                 rows_added += 1
-            elif str(p).find('4') != -1:
-                tws.cell(row=row_number, column=column_number).value = str(p)
+            elif str(fp).find('4') != -1:
+                tws.cell(row=row_number, column=column_number).value = str(fp)
                 format_sub(row_number, column_number)
                 column_number += 1
-                tws.cell(row=row_number, column=column_number).value = priorityColList.count(p)
+                tws.cell(row=row_number, column=column_number).value = priorityColList.count(fp)
                 format_sub(row_number, column_number)
                 column_number = 1
                 rows_added += 1
@@ -396,9 +405,10 @@ def ticket_data(tixlist):
 
 
 # VARIABLE SETUP
-file_path = r'\\dsfiles01\Managed Services\GEMS Reporting\2018\rawFiles'
-save_path = r'\\dsfiles01\Managed Services\GEMS Reporting\2018\savedFiles'
-company_path = r'\\dsfiles01\Managed Services\GEMS Reporting\companies.txt'
+file_path = r'  <  YOUR FILE PATH  >  '
+save_path = r'  <  YOUR FILE PATH  >  '
+# This is the path to a text file that contains all company names that should get reports.
+company_path = r'  <  YOUR FILE PATH  >  '
 company_names = get_company_names(company_path)
 report_files = file_array(file_path)
 
@@ -444,25 +454,21 @@ for cn in company_names:
             print("the file should be saved with data")
 
 
-# Checking if outlook is already opened. If not, open Outlook.exe and send email
-for item in psutil.pids():
-    p = psutil.Process(item)
-    if p.name() == "OUTLOOK.EXE":
-        flag = 1
-        break
-    else:
-        flag = 0
-codemonkey = r'C:\Users\jbarry\Desktop\codemonkeysaveworld-no2-cover.png'
-if (flag == 1):
+            # Checking if outlook is already opened. If not, open Outlook.exe and send email
+            for item in psutil.pids():
+                p = psutil.Process(item)
+                if p.name() == "OUTLOOK.EXE":
+                    flag = 1
+                    break
+                else:
+                    flag = 0
 
-    send_notification(codemonkey)
-else:
-    open_outlook()
-    send_notification(codemonkey)
-"""
-mainWindow = tk.Tk()
+            print(open_path)
+            if flag == 1:
+                send_notification(open_path, company_name)
+            else:
+                open_outlook()
+                send_notification(open_path, company_name)
 
-mainWindow.title("Did it work")
-mainWindow.geometry("640x480")
-mainWindow.mainloop()
-"""
+            break
+        continue
